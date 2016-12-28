@@ -7,12 +7,20 @@ from StringIO import StringIO
 
 
 def get_soup(url):
+    '''
+    Creates the soup object to parse the data from.
+    '''
+
     r = requests.get(url)
     data = r.content
     soup = BeautifulSoup(data, 'html.parser')
     return soup
 
 def load_df(soup):
+    '''
+    Creates a StringIO object to read the data into a pandas DataFrame.
+    '''
+
     data = StringIO(soup)
     cols = ['age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg', 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal', 'diagnosis']
     df = pd.read_csv(data, header=None, names=cols)
@@ -22,6 +30,7 @@ def check_values(df):
     '''
     Checking values of the attributes. Found that the 'ca' and 'slope' attributes have '?' values.
     '''
+    
     for col in df.columns:
         print df[col].value_counts()
 

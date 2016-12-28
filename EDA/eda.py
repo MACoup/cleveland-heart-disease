@@ -57,53 +57,68 @@ def check_correlation(df):
     return df.corr()
 
 def get_bars(df, col):
-    fig = plt.figure(figsize=(12,8))
-    ax = fig.add_subplot(111)
-    width = 0.4
+    '''
+    Plots bar graphs for categorical data.
+
+    INPUT: DataFrame and column.
+
+    OUTPUT: Plot
+    '''
+
     labels = ['Positive Diagnosis', 'All Instances', 'Negative Diagnosis']
     df_all = df
     df_yes = df[df['diagnosis'] == 1]
     df_no = df[df['diagnosis'] == 0]
-    cats = df[col].unique()
 
-    vc1 = df_yes[col].value_counts()
-    vc1_labels = vc1.index.tolist()
+    vc1 = pd.DataFrame(df_yes[col].value_counts(sort=False))
+    vc1.rename(columns={col: 'Positive Diagnosis'}, inplace=True)
 
-    vc2 = df_all[col].value_counts()
-    vc2_labels = vc2.index.tolist()
+    vc2 = pd.DataFrame(df_all[col].value_counts(sort=False))
+    vc2.rename(columns={col: 'All Instances'}, inplace=True)
 
-    vc3 = df_no[col].value_counts()
-    vc3_labels = vc3.index.tolist()
+    vc3 = pd.DataFrame(df_no[col].value_counts(sort=False))
+    vc3.rename(columns={col: 'Negative Diagnosis'}, inplace=True)
 
-    count_label_1 = zip(vc1_labels, vc1)
-    count_label_2 = zip(vc2_labels, vc2)
-    count_label_3 = zip(vc3_labels, vc3)
+    new_df = pd.concat([vc1, vc2, vc3], axis=1)
+    new_df.plot.bar(rot=0, fontsize=12, title=col.upper())
+        # break
+    plt.savefig(str(col) + '.png')
+    plt.show()
 
-
-    return count_label_1, count_label_2, count_label_3, cats
-
-def get_order(cats, cl_list):
-    label_dict = {cat: [] for cat in cats}
-    for cl in cl_list:
-        for t in cl:
-            label_dict[t[0]] = label_dict.get(t[0], []).append(t[1])
-    return label_dict
+def get_all_bars(df, columns):
+    '''
+    Used to plot all bar graphs as once.
+    '''
+    for col in columns:
+        get_bars(df, col)
 
 
 def get_box(df, col):
+    '''
+    Plots box and whisker plots for columns
+
+    INPUT: DataFrame and column
+
+    OUTPUT: Box and whisker plots
+    '''
+
     df_all = df
     df_yes = df[df['diagnosis'] == 1]
     df_no = df[df['diagnosis'] == 0]
-    fig = plt.figure(figsize=(12,8))
+    fig = plt.figure(figsize=(8,6))
     ax = fig.add_subplot(111)
     x1 = np.array(df_yes[col])
     x2 = np.array(df_all[col])
     x3 = np.array(df_no[col])
-    ax.boxplot([x1, x2, x3], labels=['Positive Diagnosis', 'All Instances', 'Negative Diagnosis'])
+    ax.boxplot([x1, x2, x3], labels=['Positive Diagnosis', 'All Instances', 'Negative Diagnosis'], showmeans=True)
     ax.set_title(col.upper())
+    plt.savefig(str(col) + '.png')
     plt.show()
 
 def get_all_box(df, columns):
+    '''
+    Plots all box plots simultaneously.
+    '''
     for col in columns:
         get_box(df, col)
 
@@ -114,9 +129,7 @@ def get_all_box(df, columns):
 if __name__ == '__main__':
     df = pd.read_csv('../Data/heart-disease-cleaned.csv')
     box_cols = ['age', 'trestbps', 'chol', 'thalach', 'oldpeak']
-    hist_cols = ['sex', 'cp', 'fbs', 'restecg', 'exang', 'slope', 'ca', 'thal']
-    # get_all_box(df, box_cols)
+    bar_cols = ['sex', 'cp', 'fbs', 'restecg', 'exang', 'slope', 'ca', 'thal']
     cat_df = get_true_values(df)
-    cl1, cl2, cl3, cats = get_bars(cat_df, 'thal')
-    cl_list = [cl1, cl2, cl3]
-    d = get_order(cats, cl_list)
+    get_all_box(df, box_cols)
+    get_all_bars(cat_df, bar_cols)
