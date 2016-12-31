@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn
+import statsmodels.api as sm
+from statsmodels.discrete.discrete_model import Logit
+from sklearn.preprocessing import MinMaxScaler
 
 '''Column descriptions:
 sex: 1 = male, 0 = female
@@ -122,6 +125,17 @@ def get_all_box(df, columns):
     for col in columns:
         get_box(df, col)
 
+def get_corr(df):
+    return df.corr()
+
+def get_scaled_dummied_corr(df):
+    df = pd.get_dummies(df)
+    scaler = MinMaxScaler()
+    x = scaler.fit_transform(df)
+    df_x = pd.DataFrame(x, columns=df.columns)
+    return df_x.corr()
+
+
 
 
 
@@ -131,5 +145,7 @@ if __name__ == '__main__':
     box_cols = ['age', 'trestbps', 'chol', 'thalach', 'oldpeak']
     bar_cols = ['sex', 'cp', 'fbs', 'restecg', 'exang', 'slope', 'ca', 'thal']
     cat_df = get_true_values(df)
-    get_all_box(df, box_cols)
-    get_all_bars(cat_df, bar_cols)
+    # get_all_box(df, box_cols)
+    # get_all_bars(cat_df, bar_cols)
+    # plot_age_gender(df, bins=4)
+    df_yes = df[df['diagnosis'] == 1]
