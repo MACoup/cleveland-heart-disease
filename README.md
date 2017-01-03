@@ -25,7 +25,7 @@
 
     RESTECG: resting electrocardiographic results
 
-    THALCH: maximum heart rate achieved
+    THALACH: maximum heart rate achieved
 
     EXANG: exercise induced angina (1 = yes; 0 = no)
 
@@ -45,4 +45,9 @@
         1: > 50% diameter narrowing
 
 
-    It is important to note that the diagnosis values in the original database contain values 0 through 4, with 1 through 4 measuring the severity positive diagnosis. 
+    It is important to note that the diagnosis values in the original database contain values 0 through 4, with 1 through 4 measuring the severity positive diagnosis. For research purposes, it is standard practice to only predict binary values for this feature.
+
+
+# EDA
+
+    Examining the correlation matrix identifies that the highest correlations with the target are Chest Pain, Exercise Induced Angina, ST Depression induced by exercise relative to rest, number of major vessels colored by flouroscopy, and Thalium heart scan. Maximum heart rate achieved has a high negative correlation.

@@ -5,6 +5,7 @@ import seaborn
 import statsmodels.api as sm
 from statsmodels.discrete.discrete_model import Logit
 from sklearn.preprocessing import MinMaxScaler
+from pandas.tools.plotting import scatter_matrix
 
 '''Column descriptions:
 sex: 1 = male, 0 = female
@@ -129,11 +130,42 @@ def get_corr(df):
     return df.corr()
 
 def get_scaled_dummied_corr(df):
+    df['ca'] = df.ca.map({0: 'Zero',
+                            1: 'One',
+                            2: 'Two',
+                            3: 'Three'})
     df = pd.get_dummies(df)
     scaler = MinMaxScaler()
     x = scaler.fit_transform(df)
     df_x = pd.DataFrame(x, columns=df.columns)
     return df_x.corr()
+
+def get_scatter_mat(df, cols):
+    new_df = df[cols]
+    scatter_matrix(new_df, figsize=(10,8), diagonal='kde')
+    plt.show()
+
+def age_gender(df):
+    new_df = df[['age', 'sex', 'diagnosis']]
+    x = new_df['age']
+    new_df['age'] = pd.cut(x, bins = 4, right=False, include_lowest=True)
+    df_yes = new_df[new_df['diagnosis'] == 1]
+    df_no = new_df[new_df['diagnosis'] == 0]
+
+    vc_all = new_df.groupby('age').count()['diagnosis']
+
+    vc_male_yes = df_yes[df_yes['sex'] == 'Male'].groupby('age').count().drop('diagnosis', axis=1).rename(columns={'sex': 'Male Positive Diagnoses'})
+
+    vc_male_no = df_no[df_no['sex'] == 'Male'].groupby('age').count().drop('diagnosis', axis=1).rename(columns={'sex': 'Male Negative Diagnoses'})
+
+    vc_female_yes = df_yes[df_yes['sex'] == 'Female'].groupby('age').count().drop('diagnosis', axis=1).rename(columns={'sex': 'Female Positive Diagnoses'})
+
+    vc_female_no = df_no[df_no['sex'] == 'Female'].groupby('age').count().drop('diagnosis', axis=1).rename(columns={'sex': 'Female Negative Diagnoses'})
+
+    fin_df = pd.concat([vc_male_yes, vc_male_no, vc_female_yes, vc_female_no], axis=1)
+
+    fin_df.plot.barh(rot=0, fontsize=12, stacked=True)
+    plt.show()
 
 
 
@@ -145,7 +177,6 @@ if __name__ == '__main__':
     box_cols = ['age', 'trestbps', 'chol', 'thalach', 'oldpeak']
     bar_cols = ['sex', 'cp', 'fbs', 'restecg', 'exang', 'slope', 'ca', 'thal']
     cat_df = get_true_values(df)
-    # get_all_box(df, box_cols)
-    # get_all_bars(cat_df, bar_cols)
-    # plot_age_gender(df, bins=4)
-    df_yes = df[df['diagnosis'] == 1]
+    scaled_df = get_scaled_dummied_corr(cat_df)
+    # get_scatter_mat(df, box_cols)
+    age_gender(df)
