@@ -128,29 +128,6 @@ def get_true_values(df):
     df['ca'] = df.ca.map({0: 'Zero', 1: 'One', 2: 'Two', 3: 'Three'})
     return df
 
-def plot_ks(model, filename):
-    '''
-    Plot the accuracy of the classifier model with the number of neightbors.
-
-    INPUT: Classifier model
-
-    OUTPUT: Plot of accuracy vs number of neighbors
-    '''
-    X_train, X_test, y_train, y_test = organize_and_split(filename)
-    ac_list = []
-    for k in range(1,20):
-        clf = model(n_neighbors=k)
-        clf.fit(X_train, y_train)
-        y_pred = clf.predict(X_test)
-        accuracy = clf.score(X_test, y_test)
-        print k, accuracy
-        ac_list.append(clf.score(X_test, y_test))
-    fig = plt.figure(figsize=(10, 6))
-    ax = fig.add_subplot(111)
-    ax.plot(range(1,20), ac_list)
-    ax.set_xlabel('Number of Neighbors', fontsize=16)
-    ax.set_ylabel('Accuracy', fontsize=16)
-    plt.show()
 
 if __name__ == '__main__':
     filename = '../Data/heart-disease-cleaned.csv'
