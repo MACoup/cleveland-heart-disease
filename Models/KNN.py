@@ -2,8 +2,9 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
 import matplotlib.pyplot as plt
 import seaborn
 
@@ -53,9 +54,12 @@ def get_KNN(X_train, X_test, y_train, y_test, n_neighbors):
     print
     print 'Accuracy: ', clf.score(X_test, y_test)
     print
-    print 'Error: ', 1 - clf.score(X_test, y_test)
+    print 'Precision: ', precision_score(y_test, y_pred)
     print
-    print 'Confusion Matrix: ', standard_confusion_matrix(y_test, y_pred)
+    print 'Recal: ', recall_score(y_test, y_pred)
+    print
+    print 'Confusion Matrix: '
+    print standard_confusion_matrix(y_test, y_pred)
 
 
 def get_gridsearch_params(clf, X_train, y_train):
@@ -128,17 +132,39 @@ def get_true_values(df):
     df['ca'] = df.ca.map({0: 'Zero', 1: 'One', 2: 'Two', 3: 'Three'})
     return df
 
+def get_smaller_df(filename, cols):
+    '''
+    Reduce the feature space to include the variables most highly correlated to the target variable
+
+    INPUT: Filename and attributes.
+
+    OUTPUT: train test split of new DataFrame
+    '''
+    df = pd.read_csv(filename)
+    df = get_true_values(df)
+    df = df[cols]
+    df = pd.get_dummies(df)
+    target = df.pop('diagnosis')
+    data = df
+    data = MinMaxScaler().fit_transform(data)
+    X_train, X_test, y_train, y_test = train_test_split(data, target, test_size=0.3, train_size=0.7, random_state=42)
+    return X_train, X_test, y_train, y_test
 
 if __name__ == '__main__':
     filename = '../Data/heart-disease-cleaned.csv'
     df = pd.read_csv(filename)
     df = get_true_values(df)
     df = pd.get_dummies(df)
-    X_train, X_test, y_train, y_test = split()
-    get_KNN(X_train, X_test, y_train, y_test, n_neighbors=1)
+    X_train, X_test, y_train, y_test = organize_and_split(filename)
+    print 'All Features:'
+    get_KNN(X_train, X_test, y_train, y_test, n_neighbors=8)
+    print
 
     clf = KNeighborsClassifier(n_jobs=-1)
     cv = cross_val_score(clf, X_train, y_train)
     gs = get_gridsearch_params(clf, X_train, y_train)
-    model = KNeighborsClassifier
-    plot_ks(model)
+    corr_cols = ['cp', 'exang', 'oldpeak', 'ca', 'thal', 'thalach', 'diagnosis']
+    X2_train, X2_test, y2_train, y2_test = get_smaller_df(filename, corr_cols)
+
+    print 'Reduced Feature Size:'
+    get_KNN(X2_train, X2_test, y2_train, y2_test, n_neighbors=8)
