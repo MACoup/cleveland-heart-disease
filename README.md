@@ -46,8 +46,3 @@
 
 
     It is important to note that the diagnosis values in the original database contain values 0 through 4, with 1 through 4 measuring the severity positive diagnosis. For research purposes, it is standard practice to only predict binary values for this feature.
-
-
-# EDA
-
-    Examining the correlation matrix identifies that the highest correlations with the target are Chest Pain, Exercise Induced Angina, ST Depression induced by exercise relative to rest, number of major vessels colored by flouroscopy, and Thalium heart scan. Maximum heart rate achieved has a high negative correlation.
